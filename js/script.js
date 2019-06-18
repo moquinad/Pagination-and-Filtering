@@ -16,6 +16,12 @@ FSJS project 2 - List Filter and Pagination
    will only be used inside of a function, then it can be locally 
    scoped to that function.
 ***/
+const pageHead = document.querySelector('.page-header');
+const page = document.querySelector('.page');
+const listItems = document.querySelectorAll('li.student-item');
+var itemsPerPage = 10;
+var currentPage = 1;
+
 
 
 
@@ -35,6 +41,21 @@ FSJS project 2 - List Filter and Pagination
        "invoke" the function 
 ***/
 
+const showPage = (list, page) => {
+   const startIndex = (page * itemsPerPage) - itemsPerPage;
+   const endIndex = (page * itemsPerPage) - 1;
+   for (let i = 0; i < list.length; i++) {
+      
+      if ((i >= startIndex) && (i <= endIndex)){
+         list[i].style.display = 'block'
+      }
+      else {
+         list[i].style.display = 'none'
+      }
+   }
+}
+
+
 
 
 
@@ -42,9 +63,81 @@ FSJS project 2 - List Filter and Pagination
    Create the `appendPageLinks function` to generate, append, and add 
    functionality to the pagination buttons.
 ***/
+const appendPageLinks = () => {
+// math function the total number of list items, divides it by the number of items I want per page, rounds up to a whole number, then subtracts 1 to account for the rounding.
+const totalPages = Math.ceil(listItems.length / itemsPerPage) - 1;
+const navDiv = document.createElement('div');
+navDiv.className = 'pagination';
+navDiv.setAttribute('id', 'navDiv');
+page.appendChild(navDiv);
+const navUl = document.createElement('ul');
+navUl.setAttribute('id', 'navUl');
+navDiv.appendChild(navUl);
+// Loops over the total number of pages and creates li elements which each contain an <a> tag for the pagination buttons.
+for (let p = 0; p < totalPages; p++) {
+   let newLi = document.createElement('li');
+   newLi.setAttribute('class', 'newLi');
+   newLi.innerHTML = ` <a href="#">${p + 1}</a> `;
+   // Appends the newly created li and a elements to the earlier-created div element.
+   navUl.appendChild(newLi);
+   // Attaches an event listener to each a tag within the created li element that calls the function to display the desired page.
+   newLi.addEventListener('click', () =>{
+      showPage(listItems,p + 1);
+   })
+}
+}
+appendPageLinks();
 
+document.addEventListener('DOMContentLoaded', () => {
+   showPage(listItems, 1);
+})
+const createSearchBar = () => {
+   let searchBar = document.createElement('input');
+   searchBar.setAttribute('type', 'text');
+   searchBar.setAttribute('id', 'search');
+   searchBar.setAttribute('class', 'student-search');
+   searchBar.setAttribute('placeholder', 'Search');
+   searchBar.setAttribute('onkeyup', 'enterSearch()');
+   pageHead.appendChild(searchBar);
+}
+createSearchBar();
 
+const enterSearch = () => {
+   const searcher = document.getElementById('search');
+   let filter = searcher.value.toUpperCase();
+   let navDiv = document.getElementById('navDiv');
+   for (let s = 0; s < listItems.length; s++) {
+      let h3 = listItems[s].getElementsByTagName('h3')[0];
+      let txtValue = h3.textContent || h3.innerText;
+      if (searcher.value === ''){
+         for (let t = 0; t < listItems.length; t++) {
+            if (t < 10){
+               listItems[t].style.display = "block";
+            } else {
+               listItems[t].style.display = "none";
+            }
+            
+         }
+         navDiv.style.display = "block"
+      } else if (txtValue.toUpperCase().indexOf(filter) > -1){
+         listItems[s].style.display = "block";
+         navDiv.style.display = "none";
+      } else{
+         listItems[s].style.display = "none";
+         navDiv.style.display = "none";
+      }
+      
+   }
+}
 
-
-
-// Remember to delete the comments that came with this file, and replace them with your own code comments.
+const navUl = document.getElementById('navUl');
+const newLi = document.getElementsByClassName('newLi');
+const aTags = navUl.querySelectorAll('a');
+aTags[0].setAttribute('class', 'active');
+const setActiveClass = (ev) => {
+   for (let a = 0; a < newLi.length; a++) {
+      aTags[a].removeAttribute('class');
+   }
+   ev.target.setAttribute('class', 'active');
+}
+navUl.addEventListener('click', setActiveClass, false);
